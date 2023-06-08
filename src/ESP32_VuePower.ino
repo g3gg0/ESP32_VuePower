@@ -56,16 +56,16 @@ void setup()
     Serial.printf("\n");
     Serial.printf("[i] Starting\n");
 
+    led_setup();
+
     Serial.printf("[i]   Setup SPIFFS\n");
     if (!SPIFFS.begin(true))
     {
         Serial.println("[E]   SPIFFS Mount Failed");
     }
+
     cfg_read();
-
-    safemode_start();
-
-    led_setup();
+    safemode_startup();
 
     Serial.printf("[i]   Setup WiFi\n");
     wifi_setup();
@@ -97,15 +97,16 @@ void setup()
     buzz_beep(12000, 500);
 }
 
-void safemode_start()
+void safemode_startup()
 {
     current_config.boot_count++;
+    cfg_save();
+    Serial.printf("[i] Boot count: %d\n", current_config.boot_count);
 
     if (current_config.boot_count > CONFIG_MAXFAILS)
     {
         safemode = true;
     }
-    cfg_save();
 }
 
 bool safemode_loop()
