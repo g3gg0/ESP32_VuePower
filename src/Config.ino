@@ -36,6 +36,8 @@ void cfg_reset()
     strcpy(current_config.mqtt_password, "");
     strcpy(current_config.mqtt_client, CONFIG_OTANAME);
     current_config.mqtt_publish = 0;
+    current_config.verbose = 0;
+    current_config.boot_count = 0;
 
     strcpy(current_config.wifi_ssid, "");
     strcpy(current_config.wifi_password, "");
@@ -48,6 +50,7 @@ void cfg_reset()
     {
         current_config.sensor_calib_channel[ch] = 0.022f;
         current_config.sensor_phase[ch] = -1;
+        sprintf(current_config.channel_name[ch], "Channel #%d", ch + 1);
     }
 }
 

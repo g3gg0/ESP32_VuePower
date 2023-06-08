@@ -293,6 +293,8 @@ void handle_set_parm()
         current_config.sensor_calib_channel[ch] = max(-2, min(2, webserver.arg(sym).toFloat()));
         sprintf(sym, "sel_ch_%d", ch);
         current_config.sensor_phase[ch] = max(-1, min(2, webserver.arg(sym).toInt()));
+        sprintf(sym, "name_ch_%d", ch);
+        strncpy(current_config.channel_name[ch], webserver.arg(sym).c_str(), sizeof(current_config.channel_name[ch]));
     }
     for (int phase = 0; phase < 3; phase++)
     {
@@ -478,8 +480,8 @@ String SendHTML()
     ADD_CONFIG("mqtt_password", current_config.mqtt_password, "%s", "MQTT Password");
     ADD_CONFIG("mqtt_client", current_config.mqtt_client, "%s", "MQTT Client Identification");
     ADD_CONFIG_CHECK4("verbose", current_config.verbose, "%d", "Verbosity", "Serial", "-", "-", "-");
-    ADD_CONFIG_CHECK4("mqtt_publish", current_config.mqtt_publish, "%d", "MQTT publishes", "-", "Debug", "-", "-");
-    ADD_CONFIG("http_update", "", "%s", "Update URL (<a href=\"javascript:void(0);\" onclick=\"document.getElementById('http_update').value = 'https://g3gg0.magiclantern.fm/Firmware/WaterSensor/firmware.bin'\">Release</a>)");
+    ADD_CONFIG_CHECK4("mqtt_publish", current_config.mqtt_publish, "%d", "MQTT publishes", "Live data", "Home Assistant", "Debug", "-");
+    ADD_CONFIG("http_update", "", "%s", "Update URL (<a href=\"javascript:void(0);\" onclick=\"document.getElementById('http_update').value = 'https://g3gg0.magiclantern.fm/Firmware/VuePower/firmware.bin'\">Release</a>)");
 
     ADD_CONFIG("cal_freq", current_config.frequency_calib, "%f", "Calib value frequency");
 
@@ -520,6 +522,23 @@ String SendHTML()
     ADD_CONFIG("sel_ch_13", current_config.sensor_phase[13], "%d", "Reference phase channel 14");
     ADD_CONFIG("sel_ch_14", current_config.sensor_phase[14], "%d", "Reference phase channel 15");
     ADD_CONFIG("sel_ch_15", current_config.sensor_phase[15], "%d", "Reference phase channel 16");
+
+    ADD_CONFIG("name_ch_0", current_config.channel_name[0], "%s", "Name of channel 1");
+    ADD_CONFIG("name_ch_1", current_config.channel_name[1], "%s", "Name of channel 2");
+    ADD_CONFIG("name_ch_2", current_config.channel_name[2], "%s", "Name of channel 3");
+    ADD_CONFIG("name_ch_3", current_config.channel_name[3], "%s", "Name of channel 4");
+    ADD_CONFIG("name_ch_4", current_config.channel_name[4], "%s", "Name of channel 5");
+    ADD_CONFIG("name_ch_5", current_config.channel_name[5], "%s", "Name of channel 6");
+    ADD_CONFIG("name_ch_6", current_config.channel_name[6], "%s", "Name of channel 7");
+    ADD_CONFIG("name_ch_7", current_config.channel_name[7], "%s", "Name of channel 8");
+    ADD_CONFIG("name_ch_8", current_config.channel_name[8], "%s", "Name of channel 9");
+    ADD_CONFIG("name_ch_9", current_config.channel_name[9], "%s", "Name of channel 10");
+    ADD_CONFIG("name_ch_10", current_config.channel_name[10], "%s", "Name of channel 11");
+    ADD_CONFIG("name_ch_11", current_config.channel_name[11], "%s", "Name of channel 12");
+    ADD_CONFIG("name_ch_12", current_config.channel_name[12], "%s", "Name of channel 13");
+    ADD_CONFIG("name_ch_13", current_config.channel_name[13], "%s", "Name of channel 14");
+    ADD_CONFIG("name_ch_14", current_config.channel_name[14], "%s", "Name of channel 15");
+    ADD_CONFIG("name_ch_15", current_config.channel_name[15], "%s", "Name of channel 16");
 
     ptr += "<td></td><td><input type=\"submit\" value=\"Save\"><button type=\"submit\" name=\"reboot\" value=\"true\">Save &amp; Reboot</button></td></table></form>\n";
 

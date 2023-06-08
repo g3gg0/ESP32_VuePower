@@ -3,8 +3,15 @@
 
 #define CONFIG_SOFTAPNAME "esp32-config"
 #define CONFIG_OTANAME "VuePower"
+#define CONFIG_MAXFAILS 10
 
 #define CONFIG_MAGIC 0xE1AAFF00
+
+#define CONFIG_PUBLISH_MQTT 1
+#define CONFIG_PUBLISH_HA 2
+#define CONFIG_PUBLISH_DEBUG 4
+
+#define CONFIG_VERBOSE_SERIAL 1
 
 typedef struct
 {
@@ -20,13 +27,15 @@ typedef struct
     char mqtt_password[32];
     char mqtt_client[32];
 
-    uint32_t verbose;
+    uint16_t verbose;
+    uint16_t boot_count;
     uint32_t mqtt_publish;
 
     float frequency_calib;
     float sensor_calib_phase[3];
     float sensor_calib_channel[16];
     int sensor_phase[16];
+    char channel_name[16][32];
 } t_cfg;
 
 extern t_cfg current_config;

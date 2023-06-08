@@ -35,7 +35,10 @@ void callback(char *topic, byte *payload, unsigned int length)
 
     payload[length] = 0;
 
-    ha_received(topic, (const char *)payload);
+    if (current_config.mqtt_publish & CONFIG_PUBLISH_HA)
+    {
+        ha_received(topic, (const char *)payload);
+    }
 
     if (!strcmp(topic, command_topic))
     {
@@ -98,182 +101,185 @@ void mqtt_setup()
 {
     mqtt.setCallback(callback);
 
-    ha_setup();
-
-    t_ha_entity entity;
-
-    memset(&entity, 0x00, sizeof(entity));
-    entity.id = "ota";
-    entity.name = "Enable OTA";
-    entity.type = ha_button;
-    entity.cmd_t = "command/%s/ota";
-    entity.received = &mqtt_ota_received;
-    ha_add(&entity);
-
-    memset(&entity, 0x00, sizeof(entity));
-    entity.id = "rssi";
-    entity.name = "WiFi RSSI";
-    entity.type = ha_sensor;
-    entity.stat_t = "feeds/integer/%s/rssi";
-    entity.unit_of_meas = "dBm";
-    ha_add(&entity);
-
-    memset(&entity, 0x00, sizeof(entity));
-    entity.id = "status";
-    entity.name = "Status message";
-    entity.type = ha_sensor;
-    entity.stat_t = "live/%s/status";
-    ha_add(&entity);
-
-    memset(&entity, 0x00, sizeof(entity));
-    entity.id = "frequency";
-    entity.name = "Mains Frequency";
-    entity.type = ha_sensor;
-    entity.stat_t = "live/%s/frequency";
-    entity.unit_of_meas = "Hz";
-    entity.dev_class = "frequency";
-    entity.state_class = "measurement";
-    ha_add(&entity);
-
-    for (int phase = 0; phase < 3; phase++)
+    if (current_config.mqtt_publish & CONFIG_PUBLISH_HA)
     {
-        char buf[32];
+        ha_setup();
+
+        t_ha_entity entity;
+
         memset(&entity, 0x00, sizeof(entity));
-
-        sprintf(buf, "ph%d_angle", phase + 1);
-        entity.id = strdup(buf);
-        sprintf(buf, "Phase #%d Angle", phase + 1);
-        entity.name = strdup(buf);
-        entity.type = ha_sensor;
-        sprintf(buf, "live/%%s/phase_%d/angle", phase + 1);
-        entity.stat_t = strdup(buf);
-        entity.unit_of_meas = "°";
-        entity.state_class = "measurement";
-
+        entity.id = "ota";
+        entity.name = "Enable OTA";
+        entity.type = ha_button;
+        entity.cmd_t = "command/%s/ota";
+        entity.received = &mqtt_ota_received;
         ha_add(&entity);
 
-        sprintf(buf, "ph%d_voltage", phase + 1);
-        entity.id = strdup(buf);
-        sprintf(buf, "Phase #%d Voltage", phase + 1);
-        entity.name = strdup(buf);
-        entity.type = ha_sensor;
-        sprintf(buf, "live/%%s/phase_%d/voltage", phase + 1);
-        entity.stat_t = strdup(buf);
-        entity.unit_of_meas = "V";
-        entity.dev_class = "voltage";
-        entity.state_class = "measurement";
-
-        ha_add(&entity);
-
-        sprintf(buf, "ph%d_power", phase + 1);
-        entity.id = strdup(buf);
-        sprintf(buf, "Phase #%d Power", phase + 1);
-        entity.name = strdup(buf);
-        entity.type = ha_sensor;
-        sprintf(buf, "live/%%s/phase_%d/power", phase + 1);
-        entity.stat_t = strdup(buf);
-        entity.unit_of_meas = "W";
-        entity.dev_class = "power";
-        entity.state_class = "measurement";
-
-        ha_add(&entity);
-
-        sprintf(buf, "ph%d_power_total", phase + 1);
-        entity.id = strdup(buf);
-        sprintf(buf, "Phase #%d Power Total", phase + 1);
-        entity.name = strdup(buf);
-        entity.type = ha_sensor;
-        sprintf(buf, "live/%%s/phase_%d/power_total", phase + 1);
-        entity.stat_t = strdup(buf);
-        entity.unit_of_meas = "Wh";
-        entity.dev_class = "energy";
-        entity.state_class = "total_increasing";
-
-        ha_add(&entity);
-
-        sprintf(buf, "ph%d_power_daily", phase + 1);
-        entity.id = strdup(buf);
-        sprintf(buf, "Phase #%d Power Daily", phase + 1);
-        entity.name = strdup(buf);
-        entity.type = ha_sensor;
-        sprintf(buf, "live/%%s/phase_%d/power_daily", phase + 1);
-        entity.stat_t = strdup(buf);
-        entity.unit_of_meas = "Wh";
-        entity.dev_class = "energy";
-        entity.state_class = "total_increasing";
-
-        ha_add(&entity);
-
-        sprintf(buf, "ph%d_current", phase + 1);
-        entity.id = strdup(buf);
-        sprintf(buf, "Phase #%d Current", phase + 1);
-        entity.name = strdup(buf);
-        entity.type = ha_sensor;
-        sprintf(buf, "live/%%s/phase_%d/current", phase + 1);
-        entity.stat_t = strdup(buf);
-        entity.unit_of_meas = "A";
-        entity.dev_class = "current";
-        entity.state_class = "measurement";
-
-        ha_add(&entity);
-    }
-
-    for (int channel = 0; channel < 16; channel++)
-    {
-        char buf[32];
         memset(&entity, 0x00, sizeof(entity));
-
-        sprintf(buf, "ch%d_power", channel + 1);
-        entity.id = strdup(buf);
-        sprintf(buf, "Channel #%d Power", channel + 1);
-        entity.name = strdup(buf);
+        entity.id = "rssi";
+        entity.name = "WiFi RSSI";
         entity.type = ha_sensor;
-        sprintf(buf, "live/%%s/ch%d/power", channel + 1);
-        entity.stat_t = strdup(buf);
-        entity.unit_of_meas = "W";
-        entity.dev_class = "power";
+        entity.stat_t = "feeds/integer/%s/rssi";
+        entity.unit_of_meas = "dBm";
+        ha_add(&entity);
+
+        memset(&entity, 0x00, sizeof(entity));
+        entity.id = "status";
+        entity.name = "Status message";
+        entity.type = ha_sensor;
+        entity.stat_t = "live/%s/status";
+        ha_add(&entity);
+
+        memset(&entity, 0x00, sizeof(entity));
+        entity.id = "frequency";
+        entity.name = "Mains Frequency";
+        entity.type = ha_sensor;
+        entity.stat_t = "live/%s/frequency";
+        entity.unit_of_meas = "Hz";
+        entity.dev_class = "frequency";
         entity.state_class = "measurement";
-
         ha_add(&entity);
 
-        sprintf(buf, "ch%d_power_total", channel + 1);
-        entity.id = strdup(buf);
-        sprintf(buf, "Channel #%d Power Total", channel + 1);
-        entity.name = strdup(buf);
-        entity.type = ha_sensor;
-        sprintf(buf, "live/%%s/ch%d/power_total", channel + 1);
-        entity.stat_t = strdup(buf);
-        entity.unit_of_meas = "Wh";
-        entity.dev_class = "energy";
-        entity.state_class = "total_increasing";
+        for (int phase = 0; phase < 3; phase++)
+        {
+            char buf[32];
+            memset(&entity, 0x00, sizeof(entity));
 
-        ha_add(&entity);
+            sprintf(buf, "ph%d_angle", phase + 1);
+            entity.id = strdup(buf);
+            sprintf(buf, "Phase #%d Angle", phase + 1);
+            entity.name = strdup(buf);
+            entity.type = ha_sensor;
+            sprintf(buf, "live/%%s/phase_%d/angle", phase + 1);
+            entity.stat_t = strdup(buf);
+            entity.unit_of_meas = "°";
+            entity.state_class = "measurement";
 
-        sprintf(buf, "ch%d_power_daily", channel + 1);
-        entity.id = strdup(buf);
-        sprintf(buf, "Channel #%d Power Daily", channel + 1);
-        entity.name = strdup(buf);
-        entity.type = ha_sensor;
-        sprintf(buf, "live/%%s/ch%d/power_daily", channel + 1);
-        entity.stat_t = strdup(buf);
-        entity.unit_of_meas = "Wh";
-        entity.dev_class = "energy";
-        entity.state_class = "total_increasing";
+            ha_add(&entity);
 
-        ha_add(&entity);
+            sprintf(buf, "ph%d_voltage", phase + 1);
+            entity.id = strdup(buf);
+            sprintf(buf, "Phase #%d Voltage", phase + 1);
+            entity.name = strdup(buf);
+            entity.type = ha_sensor;
+            sprintf(buf, "live/%%s/phase_%d/voltage", phase + 1);
+            entity.stat_t = strdup(buf);
+            entity.unit_of_meas = "V";
+            entity.dev_class = "voltage";
+            entity.state_class = "measurement";
 
-        sprintf(buf, "ch%d_current", channel + 1);
-        entity.id = strdup(buf);
-        sprintf(buf, "Channel #%d Current", channel + 1);
-        entity.name = strdup(buf);
-        entity.type = ha_sensor;
-        sprintf(buf, "live/%%s/ch%d/current", channel + 1);
-        entity.stat_t = strdup(buf);
-        entity.unit_of_meas = "A";
-        entity.dev_class = "current";
-        entity.state_class = "measurement";
+            ha_add(&entity);
 
-        ha_add(&entity);
+            sprintf(buf, "ph%d_power", phase + 1);
+            entity.id = strdup(buf);
+            sprintf(buf, "Phase #%d Power", phase + 1);
+            entity.name = strdup(buf);
+            entity.type = ha_sensor;
+            sprintf(buf, "live/%%s/phase_%d/power", phase + 1);
+            entity.stat_t = strdup(buf);
+            entity.unit_of_meas = "W";
+            entity.dev_class = "power";
+            entity.state_class = "measurement";
+
+            ha_add(&entity);
+
+            sprintf(buf, "ph%d_power_total", phase + 1);
+            entity.id = strdup(buf);
+            sprintf(buf, "Phase #%d Power Total", phase + 1);
+            entity.name = strdup(buf);
+            entity.type = ha_sensor;
+            sprintf(buf, "live/%%s/phase_%d/power_total", phase + 1);
+            entity.stat_t = strdup(buf);
+            entity.unit_of_meas = "Wh";
+            entity.dev_class = "energy";
+            entity.state_class = "total_increasing";
+
+            ha_add(&entity);
+
+            sprintf(buf, "ph%d_power_daily", phase + 1);
+            entity.id = strdup(buf);
+            sprintf(buf, "Phase #%d Power Daily", phase + 1);
+            entity.name = strdup(buf);
+            entity.type = ha_sensor;
+            sprintf(buf, "live/%%s/phase_%d/power_daily", phase + 1);
+            entity.stat_t = strdup(buf);
+            entity.unit_of_meas = "Wh";
+            entity.dev_class = "energy";
+            entity.state_class = "total_increasing";
+
+            ha_add(&entity);
+
+            sprintf(buf, "ph%d_current", phase + 1);
+            entity.id = strdup(buf);
+            sprintf(buf, "Phase #%d Current", phase + 1);
+            entity.name = strdup(buf);
+            entity.type = ha_sensor;
+            sprintf(buf, "live/%%s/phase_%d/current", phase + 1);
+            entity.stat_t = strdup(buf);
+            entity.unit_of_meas = "A";
+            entity.dev_class = "current";
+            entity.state_class = "measurement";
+
+            ha_add(&entity);
+        }
+
+        for (int channel = 0; channel < 16; channel++)
+        {
+            char buf[64];
+            memset(&entity, 0x00, sizeof(entity));
+
+            sprintf(buf, "ch%d_power", channel + 1);
+            entity.id = strdup(buf);
+            sprintf(buf, "%s Power", current_config.channel_name[channel]);
+            entity.name = strdup(buf);
+            entity.type = ha_sensor;
+            sprintf(buf, "live/%%s/ch%d/power", channel + 1);
+            entity.stat_t = strdup(buf);
+            entity.unit_of_meas = "W";
+            entity.dev_class = "power";
+            entity.state_class = "measurement";
+
+            ha_add(&entity);
+
+            sprintf(buf, "ch%d_power_total", channel + 1);
+            entity.id = strdup(buf);
+            sprintf(buf, "%s Power Total", current_config.channel_name[channel]);
+            entity.name = strdup(buf);
+            entity.type = ha_sensor;
+            sprintf(buf, "live/%%s/ch%d/power_total", channel + 1);
+            entity.stat_t = strdup(buf);
+            entity.unit_of_meas = "Wh";
+            entity.dev_class = "energy";
+            entity.state_class = "total_increasing";
+
+            ha_add(&entity);
+
+            sprintf(buf, "ch%d_power_daily", channel + 1);
+            entity.id = strdup(buf);
+            sprintf(buf, "%s Power Daily", current_config.channel_name[channel]);
+            entity.name = strdup(buf);
+            entity.type = ha_sensor;
+            sprintf(buf, "live/%%s/ch%d/power_daily", channel + 1);
+            entity.stat_t = strdup(buf);
+            entity.unit_of_meas = "Wh";
+            entity.dev_class = "energy";
+            entity.state_class = "total_increasing";
+
+            ha_add(&entity);
+
+            sprintf(buf, "ch%d_current", channel + 1);
+            entity.id = strdup(buf);
+            sprintf(buf, "%s Current", current_config.channel_name[channel]);
+            entity.name = strdup(buf);
+            entity.type = ha_sensor;
+            sprintf(buf, "live/%%s/ch%d/current", channel + 1);
+            entity.stat_t = strdup(buf);
+            entity.unit_of_meas = "A";
+            entity.dev_class = "current";
+            entity.state_class = "measurement";
+
+            ha_add(&entity);
+        }
     }
 }
 
@@ -287,7 +293,10 @@ void mqtt_publish_string(const char *name, const char *value)
     {
         mqtt_fail = true;
     }
-    Serial.printf("Published %s : %s\n", path_buffer, value);
+    if (current_config.verbose & CONFIG_VERBOSE_SERIAL)
+    {
+        Serial.printf("Published %s : %s\n", path_buffer, value);
+    }
 }
 
 void mqtt_publish_float(const char *name, float value)
@@ -302,7 +311,10 @@ void mqtt_publish_float(const char *name, float value)
     {
         mqtt_fail = true;
     }
-    Serial.printf("Published %s : %s\n", path_buffer, buffer);
+    if (current_config.verbose & CONFIG_VERBOSE_SERIAL)
+    {
+        Serial.printf("Published %s : %s\n", path_buffer, buffer);
+    }
 }
 
 void mqtt_publish_int(const char *name, uint32_t value)
@@ -321,7 +333,10 @@ void mqtt_publish_int(const char *name, uint32_t value)
     {
         mqtt_fail = true;
     }
-    Serial.printf("Published %s : %s\n", path_buffer, buffer);
+    if (current_config.verbose & CONFIG_VERBOSE_SERIAL)
+    {
+        Serial.printf("Published %s : %s\n", path_buffer, buffer);
+    }
 }
 
 bool mqtt_loop()
@@ -347,11 +362,15 @@ bool mqtt_loop()
 
     mqtt.loop();
 
-    ha_loop();
+    if (current_config.mqtt_publish & CONFIG_PUBLISH_HA)
+    {
+        ha_loop();
+    }
 
     if (time >= nextTime)
     {
         bool do_publish = false;
+        nextTime = time + 5000;
 
         if ((time - mqtt_last_publish_time) > 5000)
         {
@@ -364,55 +383,59 @@ bool mqtt_loop()
             Serial.printf("[MQTT] Publishing\n");
 
             /* debug */
-            mqtt_publish_int("feeds/integer/%s/rssi", wifi_rssi);
+            if (current_config.mqtt_publish & CONFIG_PUBLISH_DEBUG)
+            {
+                mqtt_publish_int("feeds/integer/%s/rssi", wifi_rssi);
+            }
 
             /* publish */
-            mqtt_publish_string("live/%s/status", "OK");
-            mqtt_publish_float("live/%s/frequency", sensor_data.frequency);
-
-            for (int phase = 0; phase < 3; phase++)
+            if (current_config.mqtt_publish & CONFIG_PUBLISH_MQTT)
             {
-                sprintf(buf, "live/%%s/phase_%d/voltage", phase + 1);
-                mqtt_publish_float(buf, sensor_data.phase_voltage[phase]);
-                sprintf(buf, "live/%%s/phase_%d/current", phase + 1);
-                mqtt_publish_float(buf, sensor_data.phase_current[phase]);
-                sprintf(buf, "live/%%s/phase_%d/angle", phase + 1);
-                mqtt_publish_float(buf, sensor_data.phase_angle[phase]);
-                sprintf(buf, "live/%%s/phase_%d/power", phase + 1);
-                mqtt_publish_float(buf, sensor_data.phase_power[phase]);
-                sprintf(buf, "live/%%s/phase_%d/power_total", phase + 1);
-                mqtt_publish_float(buf, sensor_data.sensor_power_total[phase]);
-                sprintf(buf, "live/%%s/phase_%d/power_daily", phase + 1);
-                mqtt_publish_float(buf, sensor_data.sensor_power_daily[phase]);
-            }
+                mqtt_publish_string("live/%s/status", "OK");
+                mqtt_publish_float("live/%s/frequency", sensor_data.frequency);
 
-            for (int ch = 0; ch < 16; ch++)
-            {
-                sensor_ch_data_t *cur_ch = &sensor_data.channels[ch];
                 for (int phase = 0; phase < 3; phase++)
                 {
-                    sprintf(buf, "live/%%s/ch%d/rel_phase_%d/power", ch + 1, phase + 1);
-                    mqtt_publish_float(buf, cur_ch->power[phase]);
-                    sprintf(buf, "live/%%s/ch%d/rel_phase_%d/power_calc", ch + 1, phase + 1);
-                    mqtt_publish_float(buf, cur_ch->power_calc[phase]);
-                    sprintf(buf, "live/%%s/ch%d/rel_phase_%d/match", ch + 1, phase + 1);
-                    mqtt_publish_float(buf, cur_ch->power_phase_match[phase]);
+                    sprintf(buf, "live/%%s/phase_%d/voltage", phase + 1);
+                    mqtt_publish_float(buf, sensor_data.phase_voltage[phase]);
+                    sprintf(buf, "live/%%s/phase_%d/current", phase + 1);
+                    mqtt_publish_float(buf, sensor_data.phase_current[phase]);
+                    sprintf(buf, "live/%%s/phase_%d/angle", phase + 1);
+                    mqtt_publish_float(buf, sensor_data.phase_angle[phase]);
+                    sprintf(buf, "live/%%s/phase_%d/power", phase + 1);
+                    mqtt_publish_float(buf, sensor_data.phase_power[phase]);
+                    sprintf(buf, "live/%%s/phase_%d/power_total", phase + 1);
+                    mqtt_publish_float(buf, sensor_data.sensor_power_total[phase]);
+                    sprintf(buf, "live/%%s/phase_%d/power_daily", phase + 1);
+                    mqtt_publish_float(buf, sensor_data.sensor_power_daily[phase]);
                 }
-                sprintf(buf, "live/%%s/ch%d/current", ch + 1);
-                mqtt_publish_float(buf, cur_ch->current);
-                sprintf(buf, "live/%%s/ch%d/power", ch + 1);
-                mqtt_publish_float(buf, cur_ch->power_real);
-                sprintf(buf, "live/%%s/ch%d/power_phase", ch + 1);
-                mqtt_publish_int(buf, cur_ch->phase_match);
-                sprintf(buf, "live/%%s/ch%d/power_total", ch + 1);
-                mqtt_publish_float(buf, sensor_data.sensor_power_total[3 + ch]);
-                sprintf(buf, "live/%%s/ch%d/power_daily", ch + 1);
-                mqtt_publish_float(buf, sensor_data.sensor_power_daily[3 + ch]);
-            }
 
+                for (int ch = 0; ch < 16; ch++)
+                {
+                    sensor_ch_data_t *cur_ch = &sensor_data.channels[ch];
+                    for (int phase = 0; phase < 3; phase++)
+                    {
+                        sprintf(buf, "live/%%s/ch%d/rel_phase_%d/power", ch + 1, phase + 1);
+                        mqtt_publish_float(buf, cur_ch->power[phase]);
+                        sprintf(buf, "live/%%s/ch%d/rel_phase_%d/power_calc", ch + 1, phase + 1);
+                        mqtt_publish_float(buf, cur_ch->power_calc[phase]);
+                        sprintf(buf, "live/%%s/ch%d/rel_phase_%d/match", ch + 1, phase + 1);
+                        mqtt_publish_float(buf, cur_ch->power_phase_match[phase]);
+                    }
+                    sprintf(buf, "live/%%s/ch%d/current", ch + 1);
+                    mqtt_publish_float(buf, cur_ch->current);
+                    sprintf(buf, "live/%%s/ch%d/power", ch + 1);
+                    mqtt_publish_float(buf, cur_ch->power_real);
+                    sprintf(buf, "live/%%s/ch%d/power_phase", ch + 1);
+                    mqtt_publish_int(buf, cur_ch->phase_match);
+                    sprintf(buf, "live/%%s/ch%d/power_total", ch + 1);
+                    mqtt_publish_float(buf, sensor_data.sensor_power_total[3 + ch]);
+                    sprintf(buf, "live/%%s/ch%d/power_daily", ch + 1);
+                    mqtt_publish_float(buf, sensor_data.sensor_power_daily[3 + ch]);
+                }
+            }
             mqtt_last_publish_time = time;
         }
-        nextTime = time + 5000;
     }
 
     return false;
@@ -447,7 +470,7 @@ void MQTT_connect()
 
     mqtt_lastConnect = curTime;
 
-    Serial.println("MQTT: Connecting to MQTT... ");
+    Serial.println("[MQTT] Connecting to MQTT... ");
 
     sprintf(command_topic, "tele/%s/command", current_config.mqtt_client);
     sprintf(response_topic, "tele/%s/response", current_config.mqtt_client);
@@ -461,15 +484,16 @@ void MQTT_connect()
         {
             mqtt_retries = 8;
         }
-        Serial.printf("MQTT: (%d) ", mqtt.state());
-        Serial.println("MQTT: Retrying MQTT connection");
+        Serial.println("[MQTT] Retrying MQTT connection");
         mqtt.disconnect();
     }
     else
     {
-        Serial.println("MQTT Connected!");
+        Serial.println("[MQTT] Connected!");
         mqtt.subscribe(command_topic);
-        ha_connected();
-        mqtt_publish_string((char *)"feeds/string/%s/error", "");
+        if (current_config.mqtt_publish & CONFIG_PUBLISH_HA)
+        {
+            ha_connected();
+        }
     }
 }

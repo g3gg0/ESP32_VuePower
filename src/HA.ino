@@ -119,35 +119,35 @@ void ha_publish()
         switch (ha_info.entities[pos].type)
         {
         case ha_sensor:
-            Serial.printf("[HA] sensor\n");
+            // Serial.printf("[HA] sensor\n");
             type = "sensor";
             break;
         case ha_text:
-            Serial.printf("[HA] text\n");
+            // Serial.printf("[HA] text\n");
             type = "text";
             break;
         case ha_number:
-            Serial.printf("[HA] number\n");
+            // Serial.printf("[HA] number\n");
             type = "number";
             break;
         case ha_button:
-            Serial.printf("[HA] button\n");
+            // Serial.printf("[HA] button\n");
             type = "button";
             break;
         case ha_binary_sensor:
-            Serial.printf("[HA] binary_sensor\n");
+            // Serial.printf("[HA] binary_sensor\n");
             type = "binary_sensor";
             break;
         case ha_select:
-            Serial.printf("[HA] select\n");
+            // Serial.printf("[HA] select\n");
             type = "select";
             break;
         case ha_light:
-            Serial.printf("[HA] light\n");
+            // Serial.printf("[HA] light\n");
             type = "light";
             break;
         default:
-            Serial.printf("[HA] last one\n");
+            // Serial.printf("[HA] last one\n");
             break;
         }
 
@@ -158,10 +158,10 @@ void ha_publish()
 
         sprintf(uniq_id, "%s_%s", ha_info.id, ha_info.entities[pos].id);
 
-        Serial.printf("[HA]   uniq_id %s\n", uniq_id);
+        // Serial.printf("[HA]   uniq_id %s\n", uniq_id);
         sprintf(mqtt_path, "homeassistant/%s/%s/%s/config", type, ha_info.id, ha_info.entities[pos].id);
 
-        Serial.printf("[HA]   mqtt_path %s\n", mqtt_path);
+        // Serial.printf("[HA]   mqtt_path %s\n", mqtt_path);
 
         strcpy(json_str, "{");
         ha_addstr(json_str, "name", ha_info.entities[pos].name);
@@ -201,8 +201,8 @@ void ha_publish()
         ha_addstr(json_str, "sw", ha_info.sw, true);
         strcat(json_str, "}}");
 
-        Serial.printf("[HA]    topic '%s'\n", mqtt_path);
-        Serial.printf("[HA]    content '%s'\n", json_str);
+        // Serial.printf("[HA]    topic '%s'\n", mqtt_path);
+        // Serial.printf("[HA]    content '%s'\n", json_str);
 
         if (!mqtt.publish(mqtt_path, json_str))
         {
