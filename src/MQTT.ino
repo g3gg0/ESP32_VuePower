@@ -372,17 +372,17 @@ bool mqtt_loop()
 
             for (int phase = 0; phase < 3; phase++)
             {
-                sprintf(buf, "live/%%s/phase_%d/voltage", phase);
+                sprintf(buf, "live/%%s/phase_%d/voltage", phase + 1);
                 mqtt_publish_float(buf, sensor_data.phase_voltage[phase]);
-                sprintf(buf, "live/%%s/phase_%d/current", phase);
+                sprintf(buf, "live/%%s/phase_%d/current", phase + 1);
                 mqtt_publish_float(buf, sensor_data.phase_current[phase]);
-                sprintf(buf, "live/%%s/phase_%d/angle", phase);
+                sprintf(buf, "live/%%s/phase_%d/angle", phase + 1);
                 mqtt_publish_float(buf, sensor_data.phase_angle[phase]);
-                sprintf(buf, "live/%%s/phase_%d/power", phase);
+                sprintf(buf, "live/%%s/phase_%d/power", phase + 1);
                 mqtt_publish_float(buf, sensor_data.phase_power[phase]);
-                sprintf(buf, "live/%%s/phase_%d/power_total", phase);
+                sprintf(buf, "live/%%s/phase_%d/power_total", phase + 1);
                 mqtt_publish_float(buf, sensor_data.sensor_power_total[phase]);
-                sprintf(buf, "live/%%s/phase_%d/power_daily", phase);
+                sprintf(buf, "live/%%s/phase_%d/power_daily", phase + 1);
                 mqtt_publish_float(buf, sensor_data.sensor_power_daily[phase]);
             }
 
@@ -391,11 +391,11 @@ bool mqtt_loop()
                 sensor_ch_data_t *cur_ch = &sensor_data.channels[ch];
                 for (int phase = 0; phase < 3; phase++)
                 {
-                    sprintf(buf, "live/%%s/ch%d/rel_phase_%d/power", ch + 1, phase);
+                    sprintf(buf, "live/%%s/ch%d/rel_phase_%d/power", ch + 1, phase + 1);
                     mqtt_publish_float(buf, cur_ch->power[phase]);
-                    sprintf(buf, "live/%%s/ch%d/rel_phase_%d/power_calc", ch + 1, phase);
+                    sprintf(buf, "live/%%s/ch%d/rel_phase_%d/power_calc", ch + 1, phase + 1);
                     mqtt_publish_float(buf, cur_ch->power_calc[phase]);
-                    sprintf(buf, "live/%%s/ch%d/rel_phase_%d/match", ch + 1, phase);
+                    sprintf(buf, "live/%%s/ch%d/rel_phase_%d/match", ch + 1, phase + 1);
                     mqtt_publish_float(buf, cur_ch->power_phase_match[phase]);
                 }
                 sprintf(buf, "live/%%s/ch%d/current", ch + 1);
