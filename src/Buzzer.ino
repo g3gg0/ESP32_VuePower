@@ -2,7 +2,7 @@
 #include "Config.h"
 #include <Pins.h>
 
-#define BUZZER_LEDC 4
+#define BUZZER_LEDC 0
 
 #define PWM_BITS 9
 #define PWM_PCT(x) ((uint32_t)((100.0f - x) * ((1UL << (PWM_BITS)) - 1) / 100.0f))
@@ -10,7 +10,8 @@
 void buzz_setup()
 {
     pinMode(DIO_BUZZER, OUTPUT);
-    ledcAttachPin(DIO_BUZZER, BUZZER_LEDC);
+    pinMode(DIO_BUZZER_GND, OUTPUT);
+    digitalWrite(DIO_BUZZER_GND, LOW);
 }
 
 bool buzz_loop()
@@ -21,6 +22,7 @@ bool buzz_loop()
 void buzz_on(uint32_t freq)
 {
     ledcSetup(BUZZER_LEDC, freq, PWM_BITS);
+    ledcAttachPin(DIO_BUZZER, BUZZER_LEDC);
     ledcWrite(BUZZER_LEDC, PWM_PCT(50));
 }
 

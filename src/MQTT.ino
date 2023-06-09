@@ -143,8 +143,8 @@ void mqtt_setup()
         for (int phase = 0; phase < 3; phase++)
         {
             char buf[32];
-            memset(&entity, 0x00, sizeof(entity));
 
+            memset(&entity, 0x00, sizeof(entity));
             sprintf(buf, "ph%d_angle", phase + 1);
             entity.id = strdup(buf);
             sprintf(buf, "Phase #%d Angle", phase + 1);
@@ -157,6 +157,7 @@ void mqtt_setup()
 
             ha_add(&entity);
 
+            memset(&entity, 0x00, sizeof(entity));
             sprintf(buf, "ph%d_voltage", phase + 1);
             entity.id = strdup(buf);
             sprintf(buf, "Phase #%d Voltage", phase + 1);
@@ -170,6 +171,7 @@ void mqtt_setup()
 
             ha_add(&entity);
 
+            memset(&entity, 0x00, sizeof(entity));
             sprintf(buf, "ph%d_power", phase + 1);
             entity.id = strdup(buf);
             sprintf(buf, "Phase #%d Power", phase + 1);
@@ -183,6 +185,7 @@ void mqtt_setup()
 
             ha_add(&entity);
 
+            memset(&entity, 0x00, sizeof(entity));
             sprintf(buf, "ph%d_power_total", phase + 1);
             entity.id = strdup(buf);
             sprintf(buf, "Phase #%d Power Total", phase + 1);
@@ -192,10 +195,39 @@ void mqtt_setup()
             entity.stat_t = strdup(buf);
             entity.unit_of_meas = "Wh";
             entity.dev_class = "energy";
+            entity.state_class = "total";
+
+            ha_add(&entity);
+
+            memset(&entity, 0x00, sizeof(entity));
+            sprintf(buf, "ph%d_power_draw_total", phase + 1);
+            entity.id = strdup(buf);
+            sprintf(buf, "Phase #%d Drawn", phase + 1);
+            entity.name = strdup(buf);
+            entity.type = ha_sensor;
+            sprintf(buf, "live/%%s/phase_%d/power_draw_total", phase + 1);
+            entity.stat_t = strdup(buf);
+            entity.unit_of_meas = "Wh";
+            entity.dev_class = "energy";
             entity.state_class = "total_increasing";
 
             ha_add(&entity);
 
+            memset(&entity, 0x00, sizeof(entity));
+            sprintf(buf, "ph%d_power_inject_total", phase + 1);
+            entity.id = strdup(buf);
+            sprintf(buf, "Phase #%d Injected", phase + 1);
+            entity.name = strdup(buf);
+            entity.type = ha_sensor;
+            sprintf(buf, "live/%%s/phase_%d/power_inject_total", phase + 1);
+            entity.stat_t = strdup(buf);
+            entity.unit_of_meas = "Wh";
+            entity.dev_class = "energy";
+            entity.state_class = "total_increasing";
+
+            ha_add(&entity);
+
+            memset(&entity, 0x00, sizeof(entity));
             sprintf(buf, "ph%d_power_daily", phase + 1);
             entity.id = strdup(buf);
             sprintf(buf, "Phase #%d Power Daily", phase + 1);
@@ -209,6 +241,7 @@ void mqtt_setup()
 
             ha_add(&entity);
 
+            memset(&entity, 0x00, sizeof(entity));
             sprintf(buf, "ph%d_current", phase + 1);
             entity.id = strdup(buf);
             sprintf(buf, "Phase #%d Current", phase + 1);
@@ -221,13 +254,24 @@ void mqtt_setup()
             entity.state_class = "measurement";
 
             ha_add(&entity);
+
+            memset(&entity, 0x00, sizeof(entity));
+            sprintf(buf, "ph%d_status", phase + 1);
+            entity.id = strdup(buf);
+            sprintf(buf, "Phase #%d Status", phase + 1);
+            entity.name = strdup(buf);
+            entity.type = ha_sensor;
+            sprintf(buf, "live/%%s/phase_%d/status", phase + 1);
+            entity.stat_t = strdup(buf);
+
+            ha_add(&entity);
         }
 
         for (int channel = 0; channel < 16; channel++)
         {
             char buf[64];
-            memset(&entity, 0x00, sizeof(entity));
 
+            memset(&entity, 0x00, sizeof(entity));
             sprintf(buf, "ch%d_power", channel + 1);
             entity.id = strdup(buf);
             sprintf(buf, "%s Power", current_config.channel_name[channel]);
@@ -241,6 +285,7 @@ void mqtt_setup()
 
             ha_add(&entity);
 
+            memset(&entity, 0x00, sizeof(entity));
             sprintf(buf, "ch%d_power_total", channel + 1);
             entity.id = strdup(buf);
             sprintf(buf, "%s Power Total", current_config.channel_name[channel]);
@@ -250,10 +295,11 @@ void mqtt_setup()
             entity.stat_t = strdup(buf);
             entity.unit_of_meas = "Wh";
             entity.dev_class = "energy";
-            entity.state_class = "total_increasing";
+            entity.state_class = "total";
 
             ha_add(&entity);
 
+            memset(&entity, 0x00, sizeof(entity));
             sprintf(buf, "ch%d_power_daily", channel + 1);
             entity.id = strdup(buf);
             sprintf(buf, "%s Power Daily", current_config.channel_name[channel]);
@@ -267,6 +313,7 @@ void mqtt_setup()
 
             ha_add(&entity);
 
+            memset(&entity, 0x00, sizeof(entity));
             sprintf(buf, "ch%d_current", channel + 1);
             entity.id = strdup(buf);
             sprintf(buf, "%s Current", current_config.channel_name[channel]);
@@ -277,6 +324,17 @@ void mqtt_setup()
             entity.unit_of_meas = "A";
             entity.dev_class = "current";
             entity.state_class = "measurement";
+
+            ha_add(&entity);
+
+            memset(&entity, 0x00, sizeof(entity));
+            sprintf(buf, "ch%d_status", channel + 1);
+            entity.id = strdup(buf);
+            sprintf(buf, "%s Status", current_config.channel_name[channel]);
+            entity.name = strdup(buf);
+            entity.type = ha_sensor;
+            sprintf(buf, "live/%%s/ch%d/status", channel + 1);
+            entity.stat_t = strdup(buf);
 
             ha_add(&entity);
         }
@@ -391,23 +449,37 @@ bool mqtt_loop()
             /* publish */
             if (current_config.mqtt_publish & CONFIG_PUBLISH_MQTT)
             {
-                mqtt_publish_string("live/%s/status", "OK");
+                mqtt_publish_string("live/%s/status", sensor_data.state);
                 mqtt_publish_float("live/%s/frequency", sensor_data.frequency);
 
                 for (int phase = 0; phase < 3; phase++)
                 {
                     sprintf(buf, "live/%%s/phase_%d/voltage", phase + 1);
-                    mqtt_publish_float(buf, sensor_data.phase_voltage[phase]);
+                    mqtt_publish_float(buf, sensor_data.phases[phase].voltage);
                     sprintf(buf, "live/%%s/phase_%d/current", phase + 1);
-                    mqtt_publish_float(buf, sensor_data.phase_current[phase]);
+                    mqtt_publish_float(buf, sensor_data.phases[phase].current);
                     sprintf(buf, "live/%%s/phase_%d/angle", phase + 1);
-                    mqtt_publish_float(buf, sensor_data.phase_angle[phase]);
+                    mqtt_publish_float(buf, sensor_data.phases[phase].angle);
                     sprintf(buf, "live/%%s/phase_%d/power", phase + 1);
-                    mqtt_publish_float(buf, sensor_data.phase_power[phase]);
+                    mqtt_publish_float(buf, sensor_data.phases[phase].power);
                     sprintf(buf, "live/%%s/phase_%d/power_total", phase + 1);
-                    mqtt_publish_float(buf, sensor_data.sensor_power_total[phase]);
+                    mqtt_publish_float(buf, sensor_data.phases[phase].power_total);
+                    sprintf(buf, "live/%%s/phase_%d/power_draw_total", phase + 1);
+                    mqtt_publish_float(buf, sensor_data.phases[phase].power_draw_total);
+                    sprintf(buf, "live/%%s/phase_%d/power_inject_total", phase + 1);
+                    mqtt_publish_float(buf, sensor_data.phases[phase].power_inject_total);
                     sprintf(buf, "live/%%s/phase_%d/power_daily", phase + 1);
-                    mqtt_publish_float(buf, sensor_data.sensor_power_daily[phase]);
+                    mqtt_publish_float(buf, sensor_data.phases[phase].power_daily);
+                    sprintf(buf, "live/%%s/phase_%d/status", phase + 1);
+                    switch (sensor_data.phases[phase].status)
+                    {
+                    case PHASE_STATUS_OK:
+                        mqtt_publish_string(buf, "OK");
+                        break;
+                    case PHASE_STATUS_NOTCONNECTED:
+                        mqtt_publish_string(buf, "Sensor not connected properly");
+                        break;
+                    }
                 }
 
                 for (int ch = 0; ch < 16; ch++)
@@ -429,9 +501,19 @@ bool mqtt_loop()
                     sprintf(buf, "live/%%s/ch%d/power_phase", ch + 1);
                     mqtt_publish_int(buf, cur_ch->phase_match);
                     sprintf(buf, "live/%%s/ch%d/power_total", ch + 1);
-                    mqtt_publish_float(buf, sensor_data.sensor_power_total[3 + ch]);
+                    mqtt_publish_float(buf, cur_ch->power_total);
                     sprintf(buf, "live/%%s/ch%d/power_daily", ch + 1);
-                    mqtt_publish_float(buf, sensor_data.sensor_power_daily[3 + ch]);
+                    mqtt_publish_float(buf, cur_ch->power_daily);
+                    sprintf(buf, "live/%%s/ch%d/status", ch + 1);
+                    switch (cur_ch->status)
+                    {
+                    case CHANNEL_STATUS_OK:
+                        mqtt_publish_string(buf, "OK");
+                        break;
+                    case CHANNEL_STATUS_NOTCONNECTED:
+                        mqtt_publish_string(buf, "Sensor not connected properly");
+                        break;
+                    }
                 }
             }
             mqtt_last_publish_time = time;

@@ -6,6 +6,7 @@
 #include <FS.h>
 #include <SPIFFS.h>
 
+#include "Sensors.h"
 #include "HA.h"
 #include "Config.h"
 #include <esp_wifi.h>
@@ -57,6 +58,7 @@ void setup()
     Serial.printf("[i] Starting\n");
 
     led_setup();
+    rtttl_setup();
 
     Serial.printf("[i]   Setup SPIFFS\n");
     if (!SPIFFS.begin(true))
@@ -76,6 +78,7 @@ void setup()
     {
         Serial.printf("[E] ENTER SAFE MODE. No further initialization.\n");
         ota_enable();
+        rtttl_play("Halloween:d=4, o=5, b=180:8d6, 8g, 8g, 8d6, 8g, 8g, 8d6, 8g, 8d#6, 8g, 8d6, 8g, 8g, 8d6, 8g, 8g, 8d6, 8g, 8d#6, 8g, 8c#6, 8f#, 8f#, 8c#6, 8f#, 8f#, 8c#6, 8f#, 8d6, 8f#, 8c#6, 8f#, 8f#, 8c#6, 8f#, 8f#, 8c#6, 8f#, 8d6, 8f#");
         return;
     }
 
@@ -94,7 +97,9 @@ void setup()
 
     Serial.println("Setup done");
 
-    buzz_beep(12000, 500);
+    buzz_beep(3200, 150);
+    buzz_beep(3700, 150);
+    buzz_beep(4200, 500);
 }
 
 void safemode_startup()
@@ -139,6 +144,7 @@ void loop()
             hasWork |= sensors_loop();
         }
     }
+    hasWork |= rtttl_loop();
     hasWork |= ota_loop();
     safemode_loop();
 
