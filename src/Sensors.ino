@@ -256,8 +256,18 @@ bool sensors_loop()
             for (int ch = 0; ch < 16; ch++)
             {
                 sensor_ch_data_t *cur_ch = &sensor_data.channels[ch];
-                cur_ch->power_total += cur_ch->minute_stats.average / 60.0f;
-                cur_ch->power_daily += cur_ch->minute_stats.average / 60.0f;
+                float energy = cur_ch->minute_stats.average / 60.0f;
+                cur_ch->power_total += energy / 60.0f;
+                cur_ch->power_daily += energy / 60.0f;
+
+                if (energy >= 0)
+                {
+                    cur_ch->power_draw_total += energy;
+                }
+                else
+                {
+                    cur_ch->power_inject_total += -energy;
+                }
             }
         }
     }

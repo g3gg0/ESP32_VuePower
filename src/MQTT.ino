@@ -300,6 +300,34 @@ void mqtt_setup()
             ha_add(&entity);
 
             memset(&entity, 0x00, sizeof(entity));
+            sprintf(buf, "ch%d_power_draw_total", channel + 1);
+            entity.id = strdup(buf);
+            sprintf(buf, "%s Drawn", current_config.channel_name[channel]);
+            entity.name = strdup(buf);
+            entity.type = ha_sensor;
+            sprintf(buf, "live/%%s/ch%d/power_draw_total", channel + 1);
+            entity.stat_t = strdup(buf);
+            entity.unit_of_meas = "Wh";
+            entity.dev_class = "energy";
+            entity.state_class = "total_increasing";
+
+            ha_add(&entity);
+
+            memset(&entity, 0x00, sizeof(entity));
+            sprintf(buf, "ch%d_power_inject_total", channel + 1);
+            entity.id = strdup(buf);
+            sprintf(buf, "%s Injected", current_config.channel_name[channel]);
+            entity.name = strdup(buf);
+            entity.type = ha_sensor;
+            sprintf(buf, "live/%%s/ch%d/power_inject_total", channel + 1);
+            entity.stat_t = strdup(buf);
+            entity.unit_of_meas = "Wh";
+            entity.dev_class = "energy";
+            entity.state_class = "total_increasing";
+
+            ha_add(&entity);
+
+            memset(&entity, 0x00, sizeof(entity));
             sprintf(buf, "ch%d_power_daily", channel + 1);
             entity.id = strdup(buf);
             sprintf(buf, "%s Power Daily", current_config.channel_name[channel]);
@@ -502,6 +530,10 @@ bool mqtt_loop()
                     mqtt_publish_int(buf, cur_ch->phase_match);
                     sprintf(buf, "live/%%s/ch%d/power_total", ch + 1);
                     mqtt_publish_float(buf, cur_ch->power_total);
+                    sprintf(buf, "live/%%s/ch%d/power_draw_total", ch + 1);
+                    mqtt_publish_float(buf, cur_ch->power_draw_total);
+                    sprintf(buf, "live/%%s/ch%d/power_inject_total", ch + 1);
+                    mqtt_publish_float(buf, cur_ch->power_inject_total);
                     sprintf(buf, "live/%%s/ch%d/power_daily", ch + 1);
                     mqtt_publish_float(buf, cur_ch->power_daily);
                     sprintf(buf, "live/%%s/ch%d/status", ch + 1);

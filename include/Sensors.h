@@ -38,6 +38,8 @@ typedef struct
     float power_phase_match[3];
     sensor_minute_stat_t minute_stats;
     float power_total;
+    float power_draw_total;
+    float power_inject_total;
     float power_daily;
     int32_t phase_match;
     uint32_t status;

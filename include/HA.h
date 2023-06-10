@@ -1,7 +1,7 @@
 #pragma once
 
 #define MAX_LEN 32
-#define MAX_ENTITIES 130
+#define MAX_ENTITIES (3 * 9 + 16 * 7 + 32)
 
 typedef enum
 {
