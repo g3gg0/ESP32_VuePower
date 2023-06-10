@@ -53,17 +53,25 @@ void minute_stat_update(sensor_minute_stat_t *stat, float value)
     if (stat->tm_min_last != tm.tm_min)
     {
         float sum = 0;
+        int entries = 0;
+
         for (int pos = 0; pos < 60; pos++)
         {
             if (stat->counter[pos])
             {
                 sum += stat->per_second[pos] / stat->counter[pos];
+                entries++;
             }
             stat->per_second[pos] = 0;
             stat->counter[pos] = 0;
         }
 
-        stat->average = sum / 60.0f;
+        if (!entries)
+        {
+            entries = 1;
+            sum = 0;
+        }
+        stat->average = sum / entries;
 
         sprintf(msg, "Last minute: %d, Power: %f", stat->tm_min_last, stat->average);
         sprintf(buf, "live/%%s/status_debug_min_%s", stat->name);
@@ -141,6 +149,7 @@ bool sensors_loop()
                 sensor_data.phases[phase].angle = 0;
                 continue;
             }
+            sensor_data.phases[phase].power_filtered = ((POWER_PT1 - 1) * sensor_data.phases[phase].power_filtered + sensor_data.phases[phase].power) / POWER_PT1;
             sensor_data.phases[phase].status = PHASE_STATUS_OK;
         }
 
@@ -194,6 +203,8 @@ bool sensors_loop()
                 cur_ch->phase_match = current_config.sensor_phase[ch];
             }
             cur_ch->power_real = cur_ch->power[cur_ch->phase_match];
+
+            cur_ch->power_filtered = ((POWER_PT1 - 1) * cur_ch->power_filtered + cur_ch->power_real) / POWER_PT1;
         }
 
         /* statistics */

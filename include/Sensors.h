@@ -6,6 +6,8 @@
 #define PHASE_STATUS_OK 0
 #define PHASE_STATUS_NOTCONNECTED 1
 
+#define POWER_PT1 8
+
 typedef struct
 {
     char name[32];
@@ -19,6 +21,7 @@ typedef struct
 {
     float current;
     float power;
+    float power_filtered;
     float voltage;
     float angle;
     sensor_minute_stat_t minute_stats;
@@ -33,6 +36,7 @@ typedef struct
 {
     float current;
     float power_real;
+    float power_filtered;
     float power[3];
     float power_calc[3];
     float power_phase_match[3];

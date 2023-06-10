@@ -489,7 +489,7 @@ bool mqtt_loop()
                     sprintf(buf, "live/%%s/phase_%d/angle", phase + 1);
                     mqtt_publish_float(buf, sensor_data.phases[phase].angle);
                     sprintf(buf, "live/%%s/phase_%d/power", phase + 1);
-                    mqtt_publish_float(buf, sensor_data.phases[phase].power);
+                    mqtt_publish_float(buf, sensor_data.phases[phase].power_filtered);
                     sprintf(buf, "live/%%s/phase_%d/power_total", phase + 1);
                     mqtt_publish_float(buf, sensor_data.phases[phase].power_total);
                     sprintf(buf, "live/%%s/phase_%d/power_draw_total", phase + 1);
@@ -525,7 +525,7 @@ bool mqtt_loop()
                     sprintf(buf, "live/%%s/ch%d/current", ch + 1);
                     mqtt_publish_float(buf, cur_ch->current);
                     sprintf(buf, "live/%%s/ch%d/power", ch + 1);
-                    mqtt_publish_float(buf, cur_ch->power_real);
+                    mqtt_publish_float(buf, cur_ch->power_filtered);
                     sprintf(buf, "live/%%s/ch%d/power_phase", ch + 1);
                     mqtt_publish_int(buf, cur_ch->phase_match);
                     sprintf(buf, "live/%%s/ch%d/power_total", ch + 1);
