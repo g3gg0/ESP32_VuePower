@@ -10,7 +10,6 @@
 
 typedef struct
 {
-    char name[32];
     float average;
     float per_second[60];
     uint32_t counter[60];

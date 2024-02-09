@@ -482,37 +482,51 @@ bool mqtt_loop()
 
                 for (int phase = 0; phase < 3; phase++)
                 {
-                    sprintf(buf, "live/%%s/phase_%d/voltage", phase + 1);
-                    mqtt_publish_float(buf, sensor_data.phases[phase].voltage);
-                    sprintf(buf, "live/%%s/phase_%d/current", phase + 1);
-                    mqtt_publish_float(buf, sensor_data.phases[phase].current);
-                    sprintf(buf, "live/%%s/phase_%d/angle", phase + 1);
-                    mqtt_publish_float(buf, sensor_data.phases[phase].angle);
-                    sprintf(buf, "live/%%s/phase_%d/power", phase + 1);
-                    mqtt_publish_float(buf, sensor_data.phases[phase].power_filtered);
-                    sprintf(buf, "live/%%s/phase_%d/power_total", phase + 1);
-                    mqtt_publish_float(buf, sensor_data.phases[phase].power_total);
-                    sprintf(buf, "live/%%s/phase_%d/power_draw_total", phase + 1);
-                    mqtt_publish_float(buf, sensor_data.phases[phase].power_draw_total);
-                    sprintf(buf, "live/%%s/phase_%d/power_inject_total", phase + 1);
-                    mqtt_publish_float(buf, sensor_data.phases[phase].power_inject_total);
-                    sprintf(buf, "live/%%s/phase_%d/power_daily", phase + 1);
-                    mqtt_publish_float(buf, sensor_data.phases[phase].power_daily);
-                    sprintf(buf, "live/%%s/phase_%d/status", phase + 1);
-                    switch (sensor_data.phases[phase].status)
+                    sensor_phase_data_t *ph = &sensor_data.phases[phase];
+
+                    switch (ph->status)
                     {
+                    case PHASE_STATUS_NOTCONNECTED:
+                        mqtt_publish_string(buf, "Sensor not connected properly");
+                        continue;
+
                     case PHASE_STATUS_OK:
                         mqtt_publish_string(buf, "OK");
                         break;
-                    case PHASE_STATUS_NOTCONNECTED:
-                        mqtt_publish_string(buf, "Sensor not connected properly");
-                        break;
                     }
+                    sprintf(buf, "live/%%s/phase_%d/voltage", phase + 1);
+                    mqtt_publish_float(buf, ph->voltage);
+                    sprintf(buf, "live/%%s/phase_%d/current", phase + 1);
+                    mqtt_publish_float(buf, ph->current);
+                    sprintf(buf, "live/%%s/phase_%d/angle", phase + 1);
+                    mqtt_publish_float(buf, ph->angle);
+                    sprintf(buf, "live/%%s/phase_%d/power", phase + 1);
+                    mqtt_publish_float(buf, ph->power_filtered);
+                    sprintf(buf, "live/%%s/phase_%d/power_total", phase + 1);
+                    mqtt_publish_float(buf, ph->power_total);
+                    sprintf(buf, "live/%%s/phase_%d/power_draw_total", phase + 1);
+                    mqtt_publish_float(buf, ph->power_draw_total);
+                    sprintf(buf, "live/%%s/phase_%d/power_inject_total", phase + 1);
+                    mqtt_publish_float(buf, ph->power_inject_total);
+                    sprintf(buf, "live/%%s/phase_%d/power_daily", phase + 1);
+                    mqtt_publish_float(buf, ph->power_daily);
+                    sprintf(buf, "live/%%s/phase_%d/status", phase + 1);
                 }
 
                 for (int ch = 0; ch < 16; ch++)
                 {
                     sensor_ch_data_t *cur_ch = &sensor_data.channels[ch];
+
+                    switch (cur_ch->status)
+                    {
+                    case CHANNEL_STATUS_NOTCONNECTED:
+                        mqtt_publish_string(buf, "Sensor not connected properly");
+                        continue;
+                    case CHANNEL_STATUS_OK:
+                        mqtt_publish_string(buf, "OK");
+                        break;
+                    }
+
                     for (int phase = 0; phase < 3; phase++)
                     {
                         sprintf(buf, "live/%%s/ch%d/rel_phase_%d/power", ch + 1, phase + 1);
@@ -537,15 +551,6 @@ bool mqtt_loop()
                     sprintf(buf, "live/%%s/ch%d/power_daily", ch + 1);
                     mqtt_publish_float(buf, cur_ch->power_daily);
                     sprintf(buf, "live/%%s/ch%d/status", ch + 1);
-                    switch (cur_ch->status)
-                    {
-                    case CHANNEL_STATUS_OK:
-                        mqtt_publish_string(buf, "OK");
-                        break;
-                    case CHANNEL_STATUS_NOTCONNECTED:
-                        mqtt_publish_string(buf, "Sensor not connected properly");
-                        break;
-                    }
                 }
             }
             mqtt_last_publish_time = time;

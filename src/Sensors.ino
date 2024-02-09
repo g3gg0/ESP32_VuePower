@@ -2,6 +2,7 @@
 
 #include <Pins.h>
 #include <Sensors.h>
+#include <math.h>
 
 #include "Time.h"
 
@@ -72,11 +73,6 @@ void minute_stat_update(sensor_minute_stat_t *stat, float value)
             sum = 0;
         }
         stat->average = sum / entries;
-
-        sprintf(msg, "Last minute: %d, Power: %f", stat->tm_min_last, stat->average);
-        sprintf(buf, "live/%%s/status_debug_min_%s", stat->name);
-        mqtt_publish_string(buf, msg);
-
         stat->tm_min_last = tm.tm_min;
     }
 
@@ -134,23 +130,25 @@ bool sensors_loop()
 
         for (int phase = 0; phase < 3; phase++)
         {
-            sensor_data.phases[phase].power = sensor_reading.power[phase].phase[phase] * current_config.sensor_calib_phase[phase] / 5.5f;
-            sensor_data.phases[phase].voltage = sensor_reading.voltage[phase] * fabsf(current_config.sensor_calib_phase[phase]);
-            sensor_data.phases[phase].current = sensor_reading.current[phase] * 775.0 / 42624.0;
-            sensor_data.phases[phase].angle = (phase > 0) ? sensor_reading.angle[phase - 1] * 360.0f / (float)sensor_reading.frequency : 0.0f;
+            sensor_phase_data_t *ph = &sensor_data.phases[phase];
+
+            ph->power = sensor_reading.power[phase].phase[phase] * current_config.sensor_calib_phase[phase] / 5.5f;
+            ph->voltage = sensor_reading.voltage[phase] * fabsf(current_config.sensor_calib_phase[phase]);
+            ph->current = sensor_reading.current[phase] * 775.0 / 42624.0;
+            ph->angle = (phase > 0) ? sensor_reading.angle[phase - 1] * 360.0f / (float)sensor_reading.frequency : 0.0f;
 
             /* when no sensor connected, the current is beyond <t.b.d> */
-            if (sensor_data.phases[phase].current > 150)
+            if (ph->current > 150)
             {
-                sensor_data.phases[phase].status = PHASE_STATUS_NOTCONNECTED;
-                sensor_data.phases[phase].power = 0;
-                sensor_data.phases[phase].voltage = 0;
-                sensor_data.phases[phase].current = 0;
-                sensor_data.phases[phase].angle = 0;
+                ph->status = PHASE_STATUS_NOTCONNECTED;
+                ph->power = 0;
+                ph->voltage = 0;
+                ph->current = 0;
+                ph->angle = 0;
                 continue;
             }
-            sensor_data.phases[phase].power_filtered = ((POWER_PT1 - 1) * sensor_data.phases[phase].power_filtered + sensor_data.phases[phase].power) / POWER_PT1;
-            sensor_data.phases[phase].status = PHASE_STATUS_OK;
+            ph->power_filtered = ((POWER_PT1 - 1) * ph->power_filtered + ph->power) / POWER_PT1;
+            ph->status = PHASE_STATUS_OK;
         }
 
         for (int ch = 0; ch < 16; ch++)
@@ -229,14 +227,12 @@ bool sensors_loop()
 
         for (int phase = 0; phase < 3; phase++)
         {
-            sprintf(sensor_data.phases[phase].minute_stats.name, "ph%d", phase);
             minute_stat_update(&sensor_data.phases[phase].minute_stats, sensor_data.phases[phase].power);
         }
 
         for (int ch = 0; ch < 16; ch++)
         {
             sensor_ch_data_t *cur_ch = &sensor_data.channels[ch];
-            sprintf(cur_ch->minute_stats.name, "ch%d", ch);
             minute_stat_update(&cur_ch->minute_stats, cur_ch->power_real);
         }
 
