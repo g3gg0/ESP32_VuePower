@@ -484,6 +484,7 @@ bool mqtt_loop()
                 {
                     sensor_phase_data_t *ph = &sensor_data.phases[phase];
 
+                    sprintf(buf, "live/%%s/phase_%d/status", phase + 1);
                     switch (ph->status)
                     {
                     case PHASE_STATUS_NOTCONNECTED:
