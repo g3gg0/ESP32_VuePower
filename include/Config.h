@@ -5,7 +5,7 @@
 #define CONFIG_OTANAME "VuePower"
 #define CONFIG_MAXFAILS 10
 
-#define CONFIG_MAGIC 0xE1AAFF00
+#define CONFIG_MAGIC 0xE1AAFF01
 
 #define CONFIG_PUBLISH_MQTT 1
 #define CONFIG_PUBLISH_HA 2
@@ -33,6 +33,7 @@ typedef struct
 
     float frequency_calib;
     float sensor_calib_phase[3];
+    float sensor_calib_phase_voltage[3];
     float sensor_calib_channel[16];
     int sensor_phase[16];
     char channel_name[16][32];

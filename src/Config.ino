@@ -46,6 +46,9 @@ void cfg_reset()
     current_config.sensor_calib_phase[0] = 0.022f;
     current_config.sensor_calib_phase[1] = 0.022f;
     current_config.sensor_calib_phase[2] = 0.022f;
+    current_config.sensor_calib_phase_voltage[0] = 0.022f;
+    current_config.sensor_calib_phase_voltage[1] = 0.022f;
+    current_config.sensor_calib_phase_voltage[2] = 0.022f;
     for (int ch = 0; ch < 16; ch++)
     {
         current_config.sensor_calib_channel[ch] = 0.022f;

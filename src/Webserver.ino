@@ -302,6 +302,12 @@ void handle_set_parm()
         sprintf(sym, "cal_ph_%d", phase);
         current_config.sensor_calib_phase[phase] = max(-2, min(2, webserver.arg(sym).toFloat()));
     }
+    for (int phase = 0; phase < 3; phase++)
+    {
+        char sym[32];
+        sprintf(sym, "cal_pv_%d", phase);
+        current_config.sensor_calib_phase_voltage[phase] = max(-2, min(2, webserver.arg(sym).toFloat()));
+    }
 
     cfg_save();
 
@@ -488,6 +494,9 @@ String SendHTML()
     ADD_CONFIG("cal_ph_0", current_config.sensor_calib_phase[0], "%f", "Calib value phase 1");
     ADD_CONFIG("cal_ph_1", current_config.sensor_calib_phase[1], "%f", "Calib value phase 2");
     ADD_CONFIG("cal_ph_2", current_config.sensor_calib_phase[2], "%f", "Calib value phase 3");
+    ADD_CONFIG("cal_pv_0", current_config.sensor_calib_phase_voltage[0], "%f", "Calib value phase voltage 1");
+    ADD_CONFIG("cal_pv_1", current_config.sensor_calib_phase_voltage[1], "%f", "Calib value phase voltage 2");
+    ADD_CONFIG("cal_pv_2", current_config.sensor_calib_phase_voltage[2], "%f", "Calib value phase voltage 3");
 
     ADD_CONFIG("cal_ch_0", current_config.sensor_calib_channel[0], "%f", "Calib value channel 1");
     ADD_CONFIG("cal_ch_1", current_config.sensor_calib_channel[1], "%f", "Calib value channel 2");
