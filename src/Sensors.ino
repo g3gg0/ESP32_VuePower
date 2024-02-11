@@ -4,7 +4,7 @@
 #include <Sensors.h>
 #include <math.h>
 
-#include "Time.h"
+#include "NTPTime.h"
 
 #include "esp32-hal-i2c.h"
 
