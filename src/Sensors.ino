@@ -133,7 +133,7 @@ bool sensors_loop()
             sensor_phase_data_t *ph = &sensor_data.phases[phase];
 
             ph->power = sensor_reading.power[phase].phase[phase] * current_config.sensor_calib_phase[phase] / 5.5f;
-            ph->voltage = sensor_reading.voltage[phase] * fabsf(current_config.sensor_calib_phase[phase]);
+            ph->voltage = sensor_reading.voltage[phase] * fabsf(current_config.sensor_calib_phase_voltage[phase]);
             ph->current = sensor_reading.current[phase] * 775.0 / 42624.0;
             ph->angle = (phase > 0) ? sensor_reading.angle[phase - 1] * 360.0f / (float)sensor_reading.frequency : 0.0f;
 
