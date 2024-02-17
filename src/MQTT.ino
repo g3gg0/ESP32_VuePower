@@ -242,6 +242,20 @@ void mqtt_setup()
             ha_add(&entity);
 
             memset(&entity, 0x00, sizeof(entity));
+            sprintf(buf, "power_daily", phase + 1);
+            entity.id = strdup(buf);
+            sprintf(buf, "Power Daily", phase + 1);
+            entity.name = strdup(buf);
+            entity.type = ha_sensor;
+            sprintf(buf, "live/%%s/power_daily");
+            entity.stat_t = strdup(buf);
+            entity.unit_of_meas = "Wh";
+            entity.dev_class = "energy";
+            entity.state_class = "total_increasing";
+
+            ha_add(&entity);
+
+            memset(&entity, 0x00, sizeof(entity));
             sprintf(buf, "ph%d_current", phase + 1);
             entity.id = strdup(buf);
             sprintf(buf, "Phase #%d Current", phase + 1);
@@ -513,6 +527,15 @@ bool mqtt_loop()
                     mqtt_publish_float(buf, ph->power_daily);
                     sprintf(buf, "live/%%s/phase_%d/status", phase + 1);
                 }
+                
+                float power_daily = 0;
+                for (int phase = 0; phase < 3; phase++)
+                {
+                    sensor_phase_data_t *ph = &sensor_data.phases[phase];
+                    power_daily += ph->power_daily;
+                }
+                mqtt_publish_float(buf, power_daily);
+                sprintf(buf, "live/%%s/power_daily", power_daily);
 
                 for (int ch = 0; ch < 16; ch++)
                 {
