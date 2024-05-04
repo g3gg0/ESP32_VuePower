@@ -534,9 +534,9 @@ bool mqtt_loop()
                     sensor_phase_data_t *ph = &sensor_data.phases[phase];
                     power_daily += ph->power_daily;
                 }
+                sprintf(buf, "live/%%s/power_daily");
                 mqtt_publish_float(buf, power_daily);
-                sprintf(buf, "live/%%s/power_daily", power_daily);
-
+                
                 for (int ch = 0; ch < 16; ch++)
                 {
                     sensor_ch_data_t *cur_ch = &sensor_data.channels[ch];
